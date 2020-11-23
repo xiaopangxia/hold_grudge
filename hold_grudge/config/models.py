@@ -45,7 +45,7 @@ class SideBar(models.Model):
     content = models.CharField(max_length=500, blank=True, verbose_name="内容")
     status = models.PositiveIntegerField(default=STATUS_SHOW, choices=STATUS_ITEMS, verbose_name="状态")
     owner = models.ForeignKey(User, verbose_name="作者", on_delete=models.DO_NOTHING, related_name='sidebar_creator')
-    created_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
+    create_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
 
     class Meta:
         verbose_name = verbose_name_plural = "侧边栏"

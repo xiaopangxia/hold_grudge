@@ -12,7 +12,7 @@ class Category(models.Model):
     )
     name = models.CharField(max_length=50, verbose_name='名称')
     status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS, verbose_name='状态')
-    is_bav = models.BooleanField(default=False, verbose_name='是否为导航')
+    is_nav = models.BooleanField(default=False, verbose_name='是否为导航')
     creator = models.ForeignKey(User, verbose_name='创建者', on_delete=models.DO_NOTHING, related_name='category_creator')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
