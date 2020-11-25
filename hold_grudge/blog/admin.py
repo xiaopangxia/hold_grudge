@@ -28,12 +28,26 @@ class TagAdmin(admin.ModelAdmin):
         return super(TagAdmin, self).save_model(request, obj, form, change)
 
 
+class CategoryOwnerFilter(admin.SimpleListFilter):
+    title = "类别"
+    parameter_name = "owner_category"
+
+    def lookups(self, request, model_admin):
+        return Category.objects.filter(creator=request.user).values_list('id', 'name')
+
+    def queryset(self, request, queryset):
+        category_id = self.value()
+        if category_id:
+            return queryset.filter(category_id=category_id)
+        return queryset
+
+
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'status', 'creator', 'category', 'operator')
     list_display_links = []
 
-    list_filter = ['category']
+    list_filter = [CategoryOwnerFilter]
     search_fields = ['title', 'category__name']
 
     actions_on_top = True
@@ -56,4 +70,10 @@ class PostAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.creator = request.user
         return super(PostAdmin, self).save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        qs = super(admin.ModelAdmin, self).get_queryset(request)
+        return qs.filter(creator=request.user)
+
+
 
