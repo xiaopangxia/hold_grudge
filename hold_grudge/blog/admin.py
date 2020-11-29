@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from .models import Post, Category, Tag
+from .adminforms import PostAdminForm
+from hold_grudge.custom_site import custom_site
 
 
 @admin.register(Category)
@@ -42,8 +44,9 @@ class CategoryOwnerFilter(admin.SimpleListFilter):
         return queryset
 
 
-@admin.register(Post)
+@admin.register(Post, site=custom_site)
 class PostAdmin(admin.ModelAdmin):
+    form = PostAdminForm
     list_display = ('title', 'status', 'creator', 'category', 'operator')
     list_display_links = []
 
@@ -53,17 +56,26 @@ class PostAdmin(admin.ModelAdmin):
     actions_on_top = True
     actions_on_bottom = True
 
-    fields = (
-        ('title', 'category'),
-        'desc',
-        'status',
-        'content',
-        'tag',
+    fieldsets = (
+        ('基础配置', {
+            'description': '基础配置',
+            'fields': (
+                ('title', 'category'),
+                'status',
+            )
+        }),
+        ('内容', {
+            'fields': ('desc', 'content')
+        }),
+        ('额外信息', {
+            'classes': ('wide',),
+            'fields': ('tag',)
+        })
     )
 
     def operator(self, obj):
         return format_html(
-            '<a href="{}">编辑</a>', reverse('admin:blog_post_change', args=(obj.id,))
+            '<a href="{}">编辑</a>', reverse('cus_admin:blog_post_change', args=(obj.id,))
         )
     operator.short_description = '操作'
 
@@ -75,5 +87,8 @@ class PostAdmin(admin.ModelAdmin):
         qs = super(admin.ModelAdmin, self).get_queryset(request)
         return qs.filter(creator=request.user)
 
-
-
+    class Media:
+        css = {
+            'all': ('https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css',),
+        }
+        js = ('https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/js/bootstrap.bundle.js',)
